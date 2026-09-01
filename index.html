@@ -1,0 +1,983 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Math Quest</title>
+<style>
+:root{
+  --bg:#f6f8fc;
+  --card:#ffffff;
+  --text:#182230;
+  --muted:#667085;
+  --border:#d0d5dd;
+  --accent:#3157d5;
+  --accent-soft:#e9eeff;
+  --good:#067647;
+  --bad:#b42318;
+  --gold:#b7791f;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  background:var(--bg);
+  color:var(--text);
+}
+button,input,select{font:inherit}
+button{
+  min-height:46px;
+  border:1px solid var(--border);
+  border-radius:12px;
+  background:#fff;
+  color:var(--text);
+  font-weight:700;
+  padding:10px 14px;
+}
+button.primary{background:var(--accent);border-color:var(--accent);color:white}
+button.soft{background:var(--accent-soft);border-color:var(--accent)}
+button:disabled{opacity:.5}
+.app{max-width:920px;margin:0 auto;padding:14px}
+.topbar{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;
+}
+.brand{font-size:28px;font-weight:900}
+.top-actions{display:flex;gap:8px;flex-wrap:wrap}
+.card{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:16px;
+  padding:16px;
+  margin-top:14px;
+}
+.grid{display:grid;gap:12px}
+.grid.two{grid-template-columns:repeat(2,minmax(0,1fr))}
+.grid.three{grid-template-columns:repeat(3,minmax(0,1fr))}
+@media(max-width:680px){
+  .grid.two,.grid.three{grid-template-columns:1fr}
+}
+.hidden{display:none!important}
+.muted{color:var(--muted)}
+.center{text-align:center}
+.section-title{font-size:20px;font-weight:850;margin:0 0 8px}
+.profile-pill{
+  display:inline-flex;align-items:center;gap:8px;
+  background:var(--accent-soft);border:1px solid var(--accent);
+  border-radius:999px;padding:8px 12px;font-weight:800;
+}
+.profile-list{display:flex;gap:8px;flex-wrap:wrap}
+.profile-btn.active{background:var(--accent-soft);border-color:var(--accent)}
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+@media(max-width:680px){.stats{grid-template-columns:repeat(2,1fr)}}
+.stat{
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:10px;
+  text-align:center;
+  background:#fff;
+}
+.stat small{display:block;color:var(--muted)}
+.stat strong{font-size:24px}
+.game-tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+@media(max-width:680px){.game-tabs{grid-template-columns:1fr}}
+.game-tab.active{background:var(--accent-soft);border-color:var(--accent)}
+.problem{font-size:42px;font-weight:900;text-align:center;margin:14px 0}
+.sub{text-align:center;color:var(--muted);font-weight:700}
+.bond{display:flex;flex-direction:column;align-items:center;gap:18px;margin:18px auto;max-width:360px}
+.parts{display:flex;gap:28px;justify-content:center}
+.box{
+  width:96px;height:76px;border:3px solid var(--border);border-radius:14px;
+  display:flex;align-items:center;justify-content:center;font-size:31px;font-weight:900;background:#fff;
+}
+.box.active{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.prompt{text-align:center;font-size:18px;font-weight:800;min-height:48px;margin:10px 0}
+.pad{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;max-width:340px;margin:0 auto}
+.pad button{font-size:23px;min-height:56px}
+.entry{
+  max-width:340px;margin:0 auto 10px;min-height:62px;border:3px solid var(--border);
+  border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:30px;font-weight:900;background:white;
+}
+.feedback{min-height:54px;text-align:center;margin:12px 0 4px;font-weight:800}
+.feedback.good{color:var(--good)}
+.feedback.bad{color:var(--bad)}
+.next{display:block;width:100%;max-width:340px;margin:10px auto}
+.progress-wrap{max-width:520px;margin:8px auto}
+.progress-bar{height:12px;background:#eaecf0;border-radius:999px;overflow:hidden}
+.progress-fill{height:100%;width:0;background:var(--accent);transition:width .25s}
+.badge{
+  display:inline-block;padding:5px 9px;border-radius:999px;border:1px solid var(--border);font-size:13px;font-weight:800;
+}
+.badge.gold{background:#fff7e6;color:var(--gold)}
+.challenge-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+@media(max-width:600px){.challenge-grid{grid-template-columns:1fr}}
+.challenge-card{
+  border:1px solid var(--border);border-radius:14px;padding:14px;background:white;
+}
+.challenge-card h3{margin:0 0 5px}
+.modal{
+  position:fixed;inset:0;background:rgba(16,24,40,.45);
+  display:flex;align-items:center;justify-content:center;padding:16px;z-index:20;
+}
+.modal-panel{
+  width:min(720px,100%);max-height:90vh;overflow:auto;background:white;border-radius:18px;padding:18px;border:1px solid var(--border);
+}
+.field{display:grid;gap:6px}
+.field label{font-weight:800}
+.field input,.field select{
+  min-height:44px;border:1px solid var(--border);border-radius:10px;padding:9px 10px;background:white;color:var(--text);
+}
+.toggle-row{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 0;border-bottom:1px solid #eee;
+}
+.toggle-row input{transform:scale(1.25)}
+.actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;margin-top:12px}
+.result-big{font-size:44px;font-weight:900;text-align:center}
+.confetti{
+  position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:30;
+}
+.confetti span{
+  position:absolute;top:-20px;font-size:24px;animation:fall 1.6s linear forwards;
+}
+@keyframes fall{to{transform:translateY(110vh) rotate(540deg);opacity:.15}}
+.streak-pop{animation:pop .35s ease}
+@keyframes pop{50%{transform:scale(1.12)}}
+.teacher-note{font-size:13px;color:var(--muted)}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="topbar">
+    <div>
+      <div class="brand">Math Quest</div>
+      <div class="muted">Number sense games and fluency challenges</div>
+    </div>
+    <div class="top-actions">
+      <button id="soundBtn">🔊 Sound On</button>
+      <button id="profilesBtn">👤 Players</button>
+      <button id="teacherBtn">⚙️ Teacher Mode</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="topbar">
+      <div>
+        <div class="muted">Current player</div>
+        <div id="currentPlayer" class="profile-pill">Guest</div>
+      </div>
+      <div>
+        <span id="modeBadge" class="badge">Practice</span>
+        <span id="challengeBadge" class="badge gold hidden"></span>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="stats">
+      <div class="stat"><small>Score</small><strong id="score">0</strong></div>
+      <div class="stat"><small>Streak</small><strong id="streak">0</strong></div>
+      <div class="stat"><small>Stars</small><strong id="stars">0</strong></div>
+      <div class="stat"><small>Best Streak</small><strong id="bestStreak">0</strong></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="game-tabs">
+      <button id="tabH" class="game-tab active">Number Bonds</button>
+      <button id="tabC" class="game-tab">Bond to Next 10</button>
+      <button id="tabS" class="game-tab">Pull Out 10</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div id="gameTitle" class="section-title center"></div>
+    <div id="instruction" class="sub"></div>
+
+    <div id="areaH">
+      <div class="bond">
+        <div id="hWhole" class="box"></div>
+        <div class="parts">
+          <div id="hLeft" class="box"></div>
+          <div id="hRight" class="box"></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="areaC" class="hidden">
+      <div id="cProblem" class="problem"></div>
+      <div id="cTarget" class="sub"></div>
+      <div class="bond">
+        <div id="cSmall" class="box"></div>
+        <div class="parts">
+          <div id="cPart1" class="box active">?</div>
+          <div id="cPart2" class="box">?</div>
+        </div>
+      </div>
+    </div>
+
+    <div id="areaS" class="hidden">
+      <div id="sNumber" class="problem"></div>
+      <div class="sub">Break the number into 10 and what remains.</div>
+      <div class="bond">
+        <div id="sWhole" class="box"></div>
+        <div class="parts">
+          <div class="box">10</div>
+          <div id="sRest" class="box">?</div>
+        </div>
+      </div>
+    </div>
+
+    <div id="roundProgress" class="progress-wrap hidden">
+      <div id="progressText" class="sub"></div>
+      <div class="progress-bar"><div id="progressFill" class="progress-fill"></div></div>
+    </div>
+
+    <div id="timerText" class="center section-title hidden"></div>
+    <div id="prompt" class="prompt"></div>
+
+    <div id="singlePanel">
+      <div id="singlePad" class="pad"></div>
+    </div>
+
+    <div id="multiPanel" class="hidden">
+      <div id="entry" class="entry">—</div>
+      <div id="multiPad" class="pad"></div>
+      <div class="actions" style="justify-content:center">
+        <button id="clearBtn">Clear</button>
+        <button id="submitBtn" class="primary">Submit</button>
+      </div>
+    </div>
+
+    <div id="feedback" class="feedback" aria-live="polite"></div>
+    <button id="nextBtn" class="primary next hidden">Next Problem</button>
+  </div>
+
+  <div class="card">
+    <div class="section-title">Challenges</div>
+    <div class="challenge-grid">
+      <div class="challenge-card">
+        <h3>⚡ 60-Second Sprint</h3>
+        <div class="muted">Score as many correct answers as you can in one minute.</div>
+        <button id="sprintBtn" class="soft" style="margin-top:10px">Start Sprint</button>
+      </div>
+      <div class="challenge-card">
+        <h3>🔥 Streak Quest</h3>
+        <div class="muted">Try to get 10 correct in a row.</div>
+        <button id="streakBtn" class="soft" style="margin-top:10px">Start Streak Quest</button>
+      </div>
+      <div class="challenge-card">
+        <h3>🎯 15-Problem Mission</h3>
+        <div class="muted">Complete 15 problems and see your accuracy.</div>
+        <button id="missionBtn" class="soft" style="margin-top:10px">Start Mission</button>
+      </div>
+      <div class="challenge-card">
+        <h3>👾 Boss Round</h3>
+        <div class="muted">Every fifth problem gets a little harder.</div>
+        <button id="bossBtn" class="soft" style="margin-top:10px">Start Boss Round</button>
+      </div>
+    </div>
+    <div class="actions" style="justify-content:center">
+      <button id="practiceBtn">Return to Practice</button>
+    </div>
+  </div>
+</div>
+
+<div id="profilesModal" class="modal hidden">
+  <div class="modal-panel">
+    <div class="topbar">
+      <div class="section-title">Player Profiles</div>
+      <button id="closeProfiles">Close</button>
+    </div>
+    <div id="profileList" class="profile-list" style="margin:12px 0"></div>
+    <div class="grid two">
+      <div class="field">
+        <label for="newProfileName">New player name</label>
+        <input id="newProfileName" maxlength="18" placeholder="Enter name">
+      </div>
+      <div class="actions" style="align-items:end">
+        <button id="addProfileBtn" class="primary">Add Player</button>
+      </div>
+    </div>
+    <div id="profileStats" class="card"></div>
+  </div>
+</div>
+
+<div id="teacherModal" class="modal hidden">
+  <div class="modal-panel">
+    <div class="topbar">
+      <div>
+        <div class="section-title">Teacher / Parent Mode</div>
+        <div class="teacher-note">These settings are saved on this device.</div>
+      </div>
+      <button id="closeTeacher">Close</button>
+    </div>
+
+    <div class="grid two" style="margin-top:12px">
+      <div class="field">
+        <label for="teacherPin">Teacher PIN</label>
+        <input id="teacherPin" inputmode="numeric" maxlength="4" placeholder="Optional 4-digit PIN">
+      </div>
+      <div class="field">
+        <label for="problemGoal">Default problem goal</label>
+        <select id="problemGoal">
+          <option value="10">10 problems</option>
+          <option value="15">15 problems</option>
+          <option value="20">20 problems</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="section-title" style="margin-top:16px">Game Access</div>
+    <div class="toggle-row"><span>Number Bonds</span><input id="allowH" type="checkbox"></div>
+    <div class="toggle-row"><span>Bond to Next 10</span><input id="allowC" type="checkbox"></div>
+    <div class="toggle-row"><span>Pull Out 10</span><input id="allowS" type="checkbox"></div>
+
+    <div class="section-title" style="margin-top:16px">Practice Settings</div>
+    <div class="toggle-row"><span>Show correct answer after a miss</span><input id="revealWrong" type="checkbox"></div>
+    <div class="toggle-row"><span>Enable sounds</span><input id="teacherSound" type="checkbox"></div>
+
+    <div class="grid two" style="margin-top:14px">
+      <div class="field">
+        <label for="bondMax">Number Bond maximum whole</label>
+        <select id="bondMax">
+          <option value="5">Within 5</option>
+          <option value="10">Within 10</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="nextTenMax">Bond-to-next-10 larger number max</label>
+        <select id="nextTenMax">
+          <option value="20">Up to 20</option>
+          <option value="50">Up to 50</option>
+          <option value="99">Up to 99</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="grid two" style="margin-top:14px">
+      <div class="field">
+        <label for="pullMin">Pull Out 10 minimum</label>
+        <input id="pullMin" type="number" min="11" max="99">
+      </div>
+      <div class="field">
+        <label for="pullMax">Pull Out 10 maximum</label>
+        <input id="pullMax" type="number" min="11" max="99">
+      </div>
+    </div>
+
+    <div class="actions">
+      <button id="saveTeacher" class="primary">Save Settings</button>
+    </div>
+  </div>
+</div>
+
+<div id="resultsModal" class="modal hidden">
+  <div class="modal-panel">
+    <div class="section-title center">Round Complete!</div>
+    <div id="resultScore" class="result-big"></div>
+    <div id="resultDetails" class="center muted"></div>
+    <div class="actions" style="justify-content:center">
+      <button id="playAgainBtn" class="primary">Play Again</button>
+      <button id="closeResults">Back to Practice</button>
+    </div>
+  </div>
+</div>
+
+<div id="confetti" class="confetti"></div>
+
+<script>
+(function(){
+  var $=function(id){return document.getElementById(id);};
+
+  var defaultSettings={
+    allowH:true,allowC:true,allowS:true,
+    revealWrong:true,sound:true,
+    bondMax:10,nextTenMax:99,
+    pullMin:11,pullMax:99,
+    problemGoal:15,teacherPin:""
+  };
+
+  var settings=loadJSON("mathQuestSettings",defaultSettings);
+  var profiles=loadJSON("mathQuestProfiles",[]);
+  var currentProfileName=localStorage.getItem("mathQuestCurrentProfile")||"Guest";
+
+  var mode="haisley";
+  var current={};
+  var score=0,streak=0,stars=0,bestStreak=0;
+  var locked=false,entry="",charStep=1;
+  var challenge="practice",roundAttempts=0,roundCorrect=0,roundTarget=0;
+  var timer=null,timeLeft=0;
+  var lastChallenge="practice";
+
+  function loadJSON(key,fallback){
+    try{
+      var v=localStorage.getItem(key);
+      return v?Object.assign(Array.isArray(fallback)?[]:{},fallback,JSON.parse(v)):fallback;
+    }catch(e){return fallback;}
+  }
+  function saveSettings(){
+    localStorage.setItem("mathQuestSettings",JSON.stringify(settings));
+  }
+  function saveProfiles(){
+    localStorage.setItem("mathQuestProfiles",JSON.stringify(profiles));
+  }
+  function getProfile(name){
+    return profiles.find(function(p){return p.name===name;})||null;
+  }
+  function ensureProfile(name){
+    if(name==="Guest") return null;
+    var p=getProfile(name);
+    if(!p){
+      p={name:name,totalCorrect:0,totalAttempts:0,bestStreak:0,stars:0,bestSprint:0};
+      profiles.push(p); saveProfiles();
+    }
+    return p;
+  }
+  function loadProfileStats(){
+    var p=getProfile(currentProfileName);
+    score=0;streak=0;
+    stars=p?p.stars:0;
+    bestStreak=p?p.bestStreak:0;
+    updateStats();
+  }
+  function updateStats(){
+    $("score").textContent=score;
+    $("streak").textContent=streak;
+    $("stars").textContent=stars;
+    $("bestStreak").textContent=bestStreak;
+    $("currentPlayer").textContent=currentProfileName;
+  }
+
+  function beep(type){
+    if(!settings.sound) return;
+    try{
+      var AudioCtx=window.AudioContext||window.webkitAudioContext;
+      if(!AudioCtx) return;
+      var ctx=new AudioCtx();
+      var master=ctx.createGain();
+      master.connect(ctx.destination);
+      master.gain.setValueAtTime(.0001,ctx.currentTime);
+      master.gain.exponentialRampToValueAtTime(.16,ctx.currentTime+.015);
+
+      function tone(freq,start,duration,volume,wave){
+        var osc=ctx.createOscillator();
+        var gain=ctx.createGain();
+        osc.type=wave||"sine";
+        osc.frequency.setValueAtTime(freq,ctx.currentTime+start);
+        osc.connect(gain);gain.connect(master);
+        gain.gain.setValueAtTime(.0001,ctx.currentTime+start);
+        gain.gain.exponentialRampToValueAtTime(volume,ctx.currentTime+start+.015);
+        gain.gain.exponentialRampToValueAtTime(.0001,ctx.currentTime+start+duration);
+        osc.start(ctx.currentTime+start);
+        osc.stop(ctx.currentTime+start+duration+.02);
+      }
+
+      if(type==="good"){
+        /* Bright rising three-note success chime */
+        tone(523.25,0,.16,.55,"sine");
+        tone(659.25,.11,.18,.55,"sine");
+        tone(783.99,.22,.28,.65,"sine");
+        tone(1046.5,.34,.30,.32,"triangle");
+      }else if(type==="streak"){
+        /* Bigger celebration for streak milestones */
+        tone(523.25,0,.14,.5,"sine");
+        tone(659.25,.09,.14,.5,"sine");
+        tone(783.99,.18,.16,.55,"sine");
+        tone(1046.5,.28,.34,.7,"sine");
+        tone(1318.5,.39,.28,.28,"triangle");
+      }else{
+        /* Gentle descending 'not quite' sound */
+        tone(330,0,.18,.42,"triangle");
+        tone(247,.14,.27,.48,"triangle");
+      }
+
+      master.gain.setValueAtTime(.16,ctx.currentTime+.45);
+      master.gain.exponentialRampToValueAtTime(.0001,ctx.currentTime+.72);
+      setTimeout(function(){try{ctx.close();}catch(e){}},850);
+    }catch(e){}
+  }
+
+  function applause(){
+    if(!settings.sound) return;
+    try{
+      var AudioCtx=window.AudioContext||window.webkitAudioContext;
+      if(!AudioCtx) return;
+      var ctx=new AudioCtx();
+      var master=ctx.createGain();
+      master.connect(ctx.destination);
+      master.gain.setValueAtTime(.22,ctx.currentTime);
+
+      /* A short synthesized crowd-clap burst made from filtered noise. */
+      function clap(at,volume){
+        var length=Math.floor(ctx.sampleRate*.075);
+        var buffer=ctx.createBuffer(1,length,ctx.sampleRate);
+        var data=buffer.getChannelData(0);
+        for(var i=0;i<length;i++){
+          var decay=Math.pow(1-i/length,2.4);
+          data[i]=(Math.random()*2-1)*decay;
+        }
+        var source=ctx.createBufferSource();
+        source.buffer=buffer;
+        var filter=ctx.createBiquadFilter();
+        filter.type="bandpass";
+        filter.frequency.value=1500+Math.random()*900;
+        filter.Q.value=.7;
+        var gain=ctx.createGain();
+        gain.gain.value=volume;
+        source.connect(filter);filter.connect(gain);gain.connect(master);
+        source.start(ctx.currentTime+at);
+      }
+
+      var times=[0,.08,.17,.27,.39,.52,.66,.82,1.0,1.18];
+      times.forEach(function(t,i){
+        clap(t,.48-(i*.015));
+        if(i%2===0) clap(t+.025,.25);
+      });
+
+      master.gain.setValueAtTime(.22,ctx.currentTime+1.05);
+      master.gain.exponentialRampToValueAtTime(.0001,ctx.currentTime+1.45);
+      setTimeout(function(){try{ctx.close();}catch(e){}},1600);
+    }catch(e){}
+  }
+
+  function confetti(count){
+    var host=$("confetti");
+    host.innerHTML="";
+    var icons=["⭐","✨","🎉","💫"];
+    for(var i=0;i<count;i++){
+      var s=document.createElement("span");
+      s.textContent=icons[i%icons.length];
+      s.style.left=(5+Math.random()*90)+"%";
+      s.style.animationDelay=(Math.random()*.35)+"s";
+      host.appendChild(s);
+    }
+    setTimeout(function(){host.innerHTML="";},2200);
+  }
+
+  function setAreas(id){
+    ["areaH","areaC","areaS"].forEach(function(x){$(x).classList.add("hidden");});
+    $(id).classList.remove("hidden");
+  }
+  function rand(a,b){return Math.floor(Math.random()*(b-a+1))+a;}
+
+  function allowedModes(){
+    var arr=[];
+    if(settings.allowH) arr.push("haisley");
+    if(settings.allowC) arr.push("charlotte");
+    if(settings.allowS) arr.push("split10");
+    return arr;
+  }
+  function enforceAllowedMode(){
+    var arr=allowedModes();
+    if(arr.length===0){settings.allowH=true;arr=["haisley"];saveSettings();}
+    if(arr.indexOf(mode)===-1) mode=arr[0];
+  }
+
+  function updateTabs(){
+    $("tabH").disabled=!settings.allowH;
+    $("tabC").disabled=!settings.allowC;
+    $("tabS").disabled=!settings.allowS;
+    ["tabH","tabC","tabS"].forEach(function(id){$(id).classList.remove("active");});
+    if(mode==="haisley") $("tabH").classList.add("active");
+    if(mode==="charlotte") $("tabC").classList.add("active");
+    if(mode==="split10") $("tabS").classList.add("active");
+  }
+
+  function makeButton(label,handler){
+    var b=document.createElement("button");
+    b.type="button";b.textContent=label;b.addEventListener("click",handler);
+    return b;
+  }
+  function buildSinglePad(){
+    var pad=$("singlePad");pad.innerHTML="";
+    var nums=mode==="haisley"?[1,2,3,4,5,6,7,8,9,10]:[1,2,3,4,5,6,7,8,9];
+    nums.forEach(function(n){pad.appendChild(makeButton(n,function(){handleSingle(n);}));});
+  }
+  function buildMultiPad(){
+    var pad=$("multiPad");pad.innerHTML="";
+    [1,2,3,4,5,6,7,8,9,0].forEach(function(n){
+      pad.appendChild(makeButton(n,function(){appendDigit(String(n));}));
+    });
+  }
+  function updateEntry(){$("entry").textContent=entry||"—";}
+  function appendDigit(d){
+    if(locked||entry.length>=2)return;
+    if(entry===""&&d==="0")return;
+    entry+=d;updateEntry();
+  }
+
+  function setMode(newMode){
+    mode=newMode;
+    enforceAllowedMode();
+    updateTabs();
+    $("singlePanel").classList.toggle("hidden",mode==="split10");
+    $("multiPanel").classList.toggle("hidden",mode!=="split10");
+    if(mode==="haisley"){
+      setAreas("areaH");
+      $("gameTitle").textContent="Number Bonds";
+      $("instruction").textContent="Find the missing part or whole.";
+    }else if(mode==="charlotte"){
+      setAreas("areaC");
+      $("gameTitle").textContent="Bond to the Next 10";
+      $("instruction").textContent="Break apart the smaller addend: first reach the next multiple of 10, then find what remains.";
+    }else{
+      setAreas("areaS");
+      $("gameTitle").textContent="Pull Out 10";
+      $("instruction").textContent="Separate 10 from a number and find what remains.";
+    }
+    buildSinglePad();newProblem();
+  }
+
+  function newH(){
+    var max=Math.max(2,Number(settings.bondMax)||10);
+    var whole=rand(2,max);
+    var left=rand(1,whole-1);
+    var right=whole-left;
+    var misses=["whole","left","right"];
+    var miss=misses[rand(0,2)];
+    current={answer:miss==="whole"?whole:(miss==="left"?left:right)};
+    $("hWhole").textContent=miss==="whole"?"?":whole;
+    $("hLeft").textContent=miss==="left"?"?":left;
+    $("hRight").textContent=miss==="right"?"?":right;
+    $("prompt").textContent="Tap the missing number.";
+  }
+
+  function newC(){
+    var big,small,target,need,rem,tries=0;
+    var max=Math.max(10,Number(settings.nextTenMax)||99);
+    do{
+      tries++;
+      big=rand(1,max);
+      if(big%10===0) continue;
+      small=rand(2,9);
+      target=Math.ceil(big/10)*10;
+      need=target-big;
+      rem=small-need;
+      if(tries>500){big=8;small=7;target=10;need=2;rem=5;break;}
+    }while(need<1||need>9||rem<1);
+
+    current={big:big,small:small,target:target,need:need,rem:rem};
+    charStep=1;
+    var flip=Math.random()<.5;
+    $("cProblem").textContent=flip?(small+" + "+big):(big+" + "+small);
+    $("cTarget").textContent="Break apart "+small+" so "+big+" can reach "+target+".";
+    $("cSmall").textContent=small;
+    $("cPart1").textContent="?";$("cPart2").textContent="?";
+    $("cPart1").classList.add("active");$("cPart2").classList.remove("active");
+    $("prompt").textContent="Step 1: How much of "+small+" joins "+big+" to make "+target+"?";
+  }
+
+  function newS(){
+    var lo=Math.max(11,Math.min(99,Number(settings.pullMin)||11));
+    var hi=Math.max(lo,Math.min(99,Number(settings.pullMax)||99));
+    var n=rand(lo,hi);
+    current={answer:n-10,n:n};
+    $("sNumber").textContent=n;$("sWhole").textContent=n;$("sRest").textContent="?";
+    $("prompt").textContent=n+" = 10 + ?";
+    entry="";updateEntry();
+  }
+
+  function newProblem(){
+    locked=false;entry="";updateEntry();
+    $("feedback").textContent="";$("feedback").className="feedback";
+    $("nextBtn").classList.add("hidden");
+    if(mode==="haisley") newH();
+    else if(mode==="charlotte") newC();
+    else newS();
+    updateChallengeUI();
+  }
+
+  function recordAttempt(correct){
+    roundAttempts++;
+    var p=ensureProfile(currentProfileName);
+    if(p) p.totalAttempts++;
+    if(correct){
+      roundCorrect++;
+      score++;streak++;stars++;
+      if(p){p.totalCorrect++;p.stars=stars;}
+      if(streak>bestStreak){
+        bestStreak=streak;
+        if(p) p.bestStreak=bestStreak;
+      }
+      if(streak>0 && streak%5===0){
+        confetti(28);
+        beep("streak");
+        setTimeout(applause,420);
+      }else beep("good");
+    }else{
+      streak=0;beep("bad");
+    }
+    if(p) saveProfiles();
+    updateStats();
+  }
+
+  function finishStandard(ok){
+    locked=true;
+    var fb=$("feedback");fb.className="feedback";
+    recordAttempt(ok);
+    if(ok){
+      fb.textContent=streak>=3?"Correct! 🔥 "+streak+" in a row!":"Correct! 🎉";
+      fb.classList.add("good");
+    }else{
+      fb.textContent=settings.revealWrong?("Nice try — the answer is "+current.answer+"."):"Try again on the next one.";
+      fb.classList.add("bad");
+    }
+    if(mode==="split10"){
+      if(settings.revealWrong||ok) $("sRest").textContent=current.answer;
+      if(ok) fb.textContent+=" "+current.n+" = 10 + "+current.answer+".";
+    }
+    afterProblem();
+  }
+
+  function handleCharlotte(v){
+    if(locked)return;
+    var fb=$("feedback");fb.className="feedback";
+    if(charStep===1){
+      if(v===current.need){
+        $("cPart1").textContent=current.need;
+        $("cPart1").classList.remove("active");$("cPart2").classList.add("active");
+        charStep=2;
+        fb.textContent="Yes — that reaches "+current.target+". Now find what remains.";
+        fb.classList.add("good");
+        beep("good");
+        $("prompt").textContent="Step 2: You used "+current.need+" from "+current.small+". What remains?";
+      }else{
+        fb.textContent="Try again. What joins "+current.big+" to reach "+current.target+"?";
+        fb.classList.add("bad");beep("bad");
+      }
+    }else{
+      if(v===current.rem){
+        $("cPart2").textContent=current.rem;$("cPart2").classList.remove("active");
+        locked=true;
+        recordAttempt(true);
+        fb.textContent="Correct! "+current.big+" + "+current.need+" = "+current.target+", then + "+current.rem+". 🎉";
+        fb.classList.add("good");
+        afterProblem();
+      }else{
+        fb.textContent="Try again. What remains from "+current.small+" after using "+current.need+"?";
+        fb.classList.add("bad");beep("bad");
+      }
+    }
+  }
+
+  function handleSingle(v){
+    if(locked)return;
+    if(mode==="charlotte") handleCharlotte(v);
+    else finishStandard(v===current.answer);
+  }
+
+  function submitMulti(){
+    if(locked||entry==="")return;
+    finishStandard(Number(entry)===current.answer);
+  }
+
+  function afterProblem(){
+    if(challenge==="sprint"){
+      if(timeLeft>0) setTimeout(newProblem,350);
+      return;
+    }
+    if(challenge==="streakQuest" && streak>=10){
+      endChallenge();
+      return;
+    }
+    if(challenge==="mission" && roundAttempts>=15){
+      endChallenge();
+      return;
+    }
+    if(challenge==="boss" && roundAttempts>=Number(settings.problemGoal||15)){
+      endChallenge();
+      return;
+    }
+    $("nextBtn").classList.remove("hidden");
+    updateChallengeUI();
+  }
+
+  function startChallenge(type){
+    clearInterval(timer);timer=null;
+    challenge=type;lastChallenge=type;
+    score=0;streak=0;roundAttempts=0;roundCorrect=0;
+    $("modeBadge").textContent="Challenge";
+    $("challengeBadge").classList.remove("hidden");
+
+    if(type==="sprint"){
+      $("challengeBadge").textContent="60-Second Sprint";
+      timeLeft=60;$("timerText").classList.remove("hidden");
+      timer=setInterval(function(){
+        timeLeft--;
+        $("timerText").textContent="⏱️ "+timeLeft+" seconds";
+        if(timeLeft<=0){clearInterval(timer);timer=null;endChallenge();}
+      },1000);
+    }else if(type==="streakQuest"){
+      $("challengeBadge").textContent="Streak Quest";
+      roundTarget=10;$("timerText").classList.add("hidden");
+    }else if(type==="mission"){
+      $("challengeBadge").textContent="15-Problem Mission";
+      roundTarget=15;$("timerText").classList.add("hidden");
+    }else{
+      $("challengeBadge").textContent="Boss Round";
+      roundTarget=Number(settings.problemGoal||15);$("timerText").classList.add("hidden");
+    }
+    $("roundProgress").classList.remove("hidden");
+    updateStats();newProblem();
+  }
+
+  function updateChallengeUI(){
+    if(challenge==="practice"){
+      $("roundProgress").classList.add("hidden");$("timerText").classList.add("hidden");return;
+    }
+    $("roundProgress").classList.remove("hidden");
+    var pct=0,text="";
+    if(challenge==="sprint"){
+      text=roundCorrect+" correct so far";
+      pct=Math.min(100,(roundAttempts/20)*100);
+      $("timerText").textContent="⏱️ "+timeLeft+" seconds";
+    }else if(challenge==="streakQuest"){
+      text="Streak: "+streak+" / 10";
+      pct=(streak/10)*100;
+    }else{
+      text="Problem "+Math.min(roundAttempts+1,roundTarget)+" of "+roundTarget;
+      pct=(roundAttempts/roundTarget)*100;
+    }
+    $("progressText").textContent=text;
+    $("progressFill").style.width=Math.max(0,Math.min(100,pct))+"%";
+  }
+
+  function endChallenge(){
+    clearInterval(timer);timer=null;locked=true;
+    var accuracy=roundAttempts?Math.round((roundCorrect/roundAttempts)*100):0;
+    var details="";
+    if(challenge==="sprint"){
+      details="You got "+roundCorrect+" correct in 60 seconds.";
+      var p=getProfile(currentProfileName);
+      if(p && roundCorrect>p.bestSprint){p.bestSprint=roundCorrect;saveProfiles();details+=" New sprint best!";}
+    }else if(challenge==="streakQuest"){
+      details=streak>=10?"You reached a 10-answer streak!":"Quest ended.";
+    }else{
+      details=roundCorrect+" correct out of "+roundAttempts+" attempts • "+accuracy+"% accuracy";
+    }
+    $("resultScore").textContent=roundCorrect+" ⭐";
+    $("resultDetails").textContent=details;
+    $("resultsModal").classList.remove("hidden");
+    confetti(24);
+  }
+
+  function returnToPractice(){
+    clearInterval(timer);timer=null;challenge="practice";lastChallenge="practice";
+    score=0;streak=0;roundAttempts=0;roundCorrect=0;
+    $("modeBadge").textContent="Practice";
+    $("challengeBadge").classList.add("hidden");
+    $("timerText").classList.add("hidden");$("roundProgress").classList.add("hidden");
+    $("resultsModal").classList.add("hidden");
+    updateStats();newProblem();
+  }
+
+  function bossAdjust(){
+    if(challenge!=="boss")return;
+    if((roundAttempts+1)%5===0){
+      if(mode==="haisley") settings.bondMax=10;
+      if(mode==="charlotte") settings.nextTenMax=99;
+      if(mode==="split10"){settings.pullMin=Math.max(settings.pullMin,40);settings.pullMax=99;}
+      $("feedback").textContent="👾 Boss problem!";
+    }
+  }
+
+  function renderProfiles(){
+    var host=$("profileList");host.innerHTML="";
+    var guest=makeButton("Guest",function(){selectProfile("Guest");});
+    guest.className="profile-btn"+(currentProfileName==="Guest"?" active":"");
+    host.appendChild(guest);
+    profiles.forEach(function(p){
+      var b=makeButton(p.name,function(){selectProfile(p.name);});
+      b.className="profile-btn"+(currentProfileName===p.name?" active":"");
+      host.appendChild(b);
+    });
+    renderProfileStats();
+  }
+  function renderProfileStats(){
+    var p=getProfile(currentProfileName);
+    if(!p){
+      $("profileStats").innerHTML="<strong>Guest</strong><div class='muted'>Guest progress is not saved.</div>";
+      return;
+    }
+    var acc=p.totalAttempts?Math.round((p.totalCorrect/p.totalAttempts)*100):0;
+    $("profileStats").innerHTML="<strong>"+escapeHtml(p.name)+"</strong><div class='grid two' style='margin-top:8px'><div>⭐ Stars: "+p.stars+"</div><div>🔥 Best streak: "+p.bestStreak+"</div><div>🎯 Accuracy: "+acc+"%</div><div>⚡ Best sprint: "+p.bestSprint+"</div></div>";
+  }
+  function escapeHtml(s){return s.replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c];});}
+  function selectProfile(name){
+    currentProfileName=name;localStorage.setItem("mathQuestCurrentProfile",name);
+    loadProfileStats();renderProfiles();$("profilesModal").classList.add("hidden");newProblem();
+  }
+
+  function openTeacher(){
+    if(settings.teacherPin){
+      var entered=prompt("Enter teacher PIN:");
+      if(entered!==settings.teacherPin){alert("Incorrect PIN.");return;}
+    }
+    $("teacherPin").value=settings.teacherPin||"";
+    $("problemGoal").value=String(settings.problemGoal||15);
+    $("allowH").checked=!!settings.allowH;$("allowC").checked=!!settings.allowC;$("allowS").checked=!!settings.allowS;
+    $("revealWrong").checked=!!settings.revealWrong;$("teacherSound").checked=!!settings.sound;
+    $("bondMax").value=String(settings.bondMax);$("nextTenMax").value=String(settings.nextTenMax);
+    $("pullMin").value=settings.pullMin;$("pullMax").value=settings.pullMax;
+    $("teacherModal").classList.remove("hidden");
+  }
+
+  function saveTeacherSettings(){
+    settings.teacherPin=$("teacherPin").value.trim().slice(0,4);
+    settings.problemGoal=Number($("problemGoal").value);
+    settings.allowH=$("allowH").checked;settings.allowC=$("allowC").checked;settings.allowS=$("allowS").checked;
+    if(!settings.allowH&&!settings.allowC&&!settings.allowS){settings.allowH=true;}
+    settings.revealWrong=$("revealWrong").checked;settings.sound=$("teacherSound").checked;
+    settings.bondMax=Number($("bondMax").value);settings.nextTenMax=Number($("nextTenMax").value);
+    settings.pullMin=Math.max(11,Math.min(99,Number($("pullMin").value)||11));
+    settings.pullMax=Math.max(settings.pullMin,Math.min(99,Number($("pullMax").value)||99));
+    saveSettings();
+    $("teacherModal").classList.add("hidden");
+    enforceAllowedMode();updateTabs();updateSoundButton();setMode(mode);
+  }
+
+  function updateSoundButton(){
+    $("soundBtn").textContent=settings.sound?"🔊 Sound On":"🔇 Sound Off";
+  }
+
+  $("tabH").addEventListener("click",function(){if(settings.allowH)setMode("haisley");});
+  $("tabC").addEventListener("click",function(){if(settings.allowC)setMode("charlotte");});
+  $("tabS").addEventListener("click",function(){if(settings.allowS)setMode("split10");});
+
+  $("soundBtn").addEventListener("click",function(){settings.sound=!settings.sound;saveSettings();updateSoundButton();});
+  $("profilesBtn").addEventListener("click",function(){renderProfiles();$("profilesModal").classList.remove("hidden");});
+  $("teacherBtn").addEventListener("click",openTeacher);
+
+  $("closeProfiles").addEventListener("click",function(){$("profilesModal").classList.add("hidden");});
+  $("closeTeacher").addEventListener("click",function(){$("teacherModal").classList.add("hidden");});
+  $("saveTeacher").addEventListener("click",saveTeacherSettings);
+
+  $("addProfileBtn").addEventListener("click",function(){
+    var name=$("newProfileName").value.trim();
+    if(!name)return;
+    if(getProfile(name)){alert("That player already exists.");return;}
+    profiles.push({name:name,totalCorrect:0,totalAttempts:0,bestStreak:0,stars:0,bestSprint:0});
+    saveProfiles();$("newProfileName").value="";selectProfile(name);
+  });
+
+  $("clearBtn").addEventListener("click",function(){if(!locked){entry="";updateEntry();}});
+  $("submitBtn").addEventListener("click",submitMulti);
+  $("nextBtn").addEventListener("click",function(){bossAdjust();newProblem();});
+
+  $("sprintBtn").addEventListener("click",function(){startChallenge("sprint");});
+  $("streakBtn").addEventListener("click",function(){startChallenge("streakQuest");});
+  $("missionBtn").addEventListener("click",function(){startChallenge("mission");});
+  $("bossBtn").addEventListener("click",function(){startChallenge("boss");});
+  $("practiceBtn").addEventListener("click",returnToPractice);
+
+  $("playAgainBtn").addEventListener("click",function(){$("resultsModal").classList.add("hidden");startChallenge(lastChallenge);});
+  $("closeResults").addEventListener("click",returnToPractice);
+
+  buildMultiPad();
+  updateSoundButton();
+  enforceAllowedMode();
+  loadProfileStats();
+  setMode(mode);
+})();
+</script>
+</body>
+</html>
